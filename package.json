@@ -1,0 +1,10 @@
+{
+  "name": "polyglot-campus",
+  "version": "1.0.0",
+  "description": "多语种在线教育平台原型，支持分级课程、互动学习、进度追踪、登录、推荐和社区成就。",
+  "type": "module",
+  "scripts": {
+    "start": "python3 -m http.server 4173",
+    "check": "node --check src/main.js"
+  }
+}

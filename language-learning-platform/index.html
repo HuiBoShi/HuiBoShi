@@ -1,0 +1,2321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>语言星际 - 多语种学习平台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --secondary: #ec4899;
+            --accent-en: #3b82f6;
+            --accent-ja: #f472b6;
+            --accent-ko: #a855f7;
+            --bg-dark: #0a0a1a;
+            --bg-card: rgba(20, 20, 40, 0.8);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', 'Space Grotesk', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 粒子背景 */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary-light);
+            border-radius: 50%;
+            animation: float 15s infinite ease-in-out;
+            opacity: 0.6;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(10, 10, 26, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--text-primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after, .nav-links a.active::after {
+            width: 100%;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 0.95rem;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-ghost:hover {
+            background: var(--glass);
+            border-color: var(--primary);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(99, 102, 241, 0.6);
+        }
+
+        /* 页面容器 */
+        .page {
+            display: none;
+            min-height: 100vh;
+            padding-top: 80px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 首页 */
+        .hero {
+            min-height: calc(100vh - 80px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-light) 50%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 3rem;
+            line-height: 1.8;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 4rem;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 4rem;
+            margin-top: 2rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        /* 语言选择区 */
+        .language-section {
+            padding: 4rem 2rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .language-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .language-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s;
+        }
+
+        .language-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--card-accent);
+            transform: scaleX(0);
+            transition: transform 0.4s;
+        }
+
+        .language-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .language-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--card-accent);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px var(--card-glow);
+        }
+
+        .language-card[data-lang="en"] {
+            --card-accent: var(--accent-en);
+            --card-glow: rgba(59, 130, 246, 0.2);
+        }
+
+        .language-card[data-lang="ja"] {
+            --card-accent: var(--accent-ja);
+            --card-glow: rgba(244, 114, 182, 0.2);
+        }
+
+        .language-card[data-lang="ko"] {
+            --card-accent: var(--accent-ko);
+            --card-glow: rgba(168, 85, 247, 0.2);
+        }
+
+        .lang-flag {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .lang-name {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .lang-native {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .lang-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .lang-levels {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .level-badge {
+            padding: 0.375rem 0.75rem;
+            background: var(--glass);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            border: 1px solid var(--glass-border);
+        }
+
+        .lang-progress {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--glass);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--card-accent), var(--card-accent));
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        /* 课程页面 */
+        .courses-page {
+            padding: 2rem;
+        }
+
+        .course-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .course-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .course-lang-icon {
+            font-size: 3rem;
+        }
+
+        .course-lang-info h2 {
+            font-size: 1.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .course-lang-info p {
+            color: var(--text-secondary);
+        }
+
+        .course-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            background: var(--bg-card);
+            padding: 0.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .course-tab {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background: transparent;
+            border: none;
+            font-size: 0.95rem;
+        }
+
+        .course-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .course-tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .course-level {
+            margin-bottom: 3rem;
+        }
+
+        .level-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .level-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .lessons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .lesson-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .lesson-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .lesson-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .lesson-number {
+            width: 40px;
+            height: 40px;
+            background: var(--glass);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--primary-light);
+        }
+
+        .lesson-type {
+            padding: 0.375rem 0.75rem;
+            background: var(--glass);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .lesson-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .lesson-description {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .lesson-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .lesson-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* 学习模块页面 */
+        .learning-page {
+            padding: 2rem;
+        }
+
+        .learning-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .learning-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .learning-header h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .learning-header p {
+            color: var(--text-secondary);
+        }
+
+        .learning-modules {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .module-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--module-color) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .module-card:hover::after {
+            opacity: 0.05;
+        }
+
+        .module-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--module-color);
+        }
+
+        .module-card[data-module="vocabulary"] {
+            --module-color: #10b981;
+        }
+
+        .module-card[data-module="grammar"] {
+            --module-color: #f59e0b;
+        }
+
+        .module-card[data-module="speaking"] {
+            --module-color: #ec4899;
+        }
+
+        .module-card[data-module="listening"] {
+            --module-color: #8b5cf6;
+        }
+
+        .module-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--module-color), transparent);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .module-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .module-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .module-stats {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .module-stat {
+            text-align: center;
+        }
+
+        .module-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--module-color);
+        }
+
+        .module-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* 单词学习模块 */
+        .vocab-learning {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 3rem;
+            border: 1px solid var(--glass-border);
+        }
+
+        .flashcard {
+            perspective: 1000px;
+            width: 100%;
+            max-width: 500px;
+            height: 300px;
+            margin: 0 auto 2rem;
+            cursor: pointer;
+        }
+
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .flashcard-front {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .flashcard-back {
+            background: var(--bg-card);
+            border: 2px solid var(--primary);
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-word {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .flashcard-pronunciation {
+            font-size: 1.25rem;
+            opacity: 0.8;
+        }
+
+        .flashcard-translation {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .flashcard-example {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .vocab-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .vocab-btn {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .vocab-btn.know {
+            background: #10b981;
+            color: white;
+        }
+
+        .vocab-btn.dont-know {
+            background: #ef4444;
+            color: white;
+        }
+
+        .vocab-btn.know:hover, .vocab-btn.dont-know:hover {
+            transform: scale(1.05);
+        }
+
+        /* 进度页面 */
+        .progress-page {
+            padding: 2rem;
+        }
+
+        .progress-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .progress-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .progress-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .progress-card-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin: 0 auto 1rem;
+        }
+
+        .progress-card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .progress-card-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .progress-section {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .language-progress-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .language-progress-item {
+            background: var(--glass);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .language-progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .language-progress-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .language-progress-flag {
+            font-size: 2rem;
+        }
+
+        .language-progress-name {
+            font-weight: 600;
+        }
+
+        .language-progress-level {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .language-progress-percent {
+            font-weight: 600;
+            color: var(--primary-light);
+        }
+
+        .language-progress-bar {
+            height: 12px;
+            background: var(--bg-dark);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .language-progress-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 1s ease;
+        }
+
+        .language-progress-fill.en { background: linear-gradient(90deg, var(--accent-en), #60a5fa); }
+        .language-progress-fill.ja { background: linear-gradient(90deg, var(--accent-ja), #f9a8d4); }
+        .language-progress-fill.ko { background: linear-gradient(90deg, var(--accent-ko), #c084fc); }
+
+        .weekly-activity {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .day-activity {
+            text-align: center;
+        }
+
+        .day-bar {
+            height: 100px;
+            background: var(--glass);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 0.25rem;
+        }
+
+        .day-fill {
+            border-radius: 6px;
+            transition: height 0.5s ease;
+        }
+
+        .day-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* 社区页面 */
+        .community-page {
+            padding: 2rem;
+        }
+
+        .community-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .community-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .community-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .feed {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .post-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .post-user {
+            font-weight: 600;
+        }
+
+        .post-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .post-content {
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .post-action {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .post-action:hover {
+            color: var(--primary-light);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+        }
+
+        .sidebar-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .achievement {
+            text-align: center;
+            padding: 0.75rem;
+            background: var(--glass);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .achievement:hover {
+            background: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .achievement.locked {
+            opacity: 0.4;
+            filter: grayscale(1);
+        }
+
+        .achievement-icon {
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .achievement-name {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .achievement:hover .achievement-name {
+            color: white;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: var(--glass);
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+        }
+
+        .leaderboard-rank {
+            width: 28px;
+            height: 28px;
+            background: var(--glass);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .leaderboard-rank.gold { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; }
+        .leaderboard-rank.silver { background: linear-gradient(135deg, #d1d5db, #9ca3af); color: #000; }
+        .leaderboard-rank.bronze { background: linear-gradient(135deg, #d97706, #b45309); color: #fff; }
+
+        .leaderboard-name {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .leaderboard-score {
+            font-weight: 600;
+            color: var(--primary-light);
+        }
+
+        /* 登录页面 */
+        .auth-page {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 80px);
+            padding: 2rem;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 3rem;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-header h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-header p {
+            color: var(--text-secondary);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            padding: 1rem 1.25rem;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .auth-footer a {
+            color: var(--primary-light);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* 个性化推荐 */
+        .recommendation-section {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.1));
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .recommendation-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .recommendation-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .recommendation-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .recommendation-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .recommendation-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .recommendation-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            display: flex;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .recommendation-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .recommendation-thumb {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--rec-color), transparent);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+
+        .recommendation-card[data-type="vocab"] { --rec-color: #10b981; }
+        .recommendation-card[data-type="grammar"] { --rec-color: #f59e0b; }
+        .recommendation-card[data-type="speaking"] { --rec-color: #ec4899; }
+        .recommendation-card[data-type="listening"] { --rec-color: #8b5cf6; }
+
+        .recommendation-info {
+            flex: 1;
+        }
+
+        .recommendation-type {
+            font-size: 0.75rem;
+            color: var(--rec-color);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .recommendation-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .recommendation-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* 移动端菜单 */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: var(--bg-dark);
+                flex-direction: column;
+                padding: 2rem;
+                gap: 1.5rem;
+                border-bottom: 1px solid var(--glass-border);
+            }
+
+            .nav-links.show {
+                display: flex;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .language-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .learning-modules {
+                grid-template-columns: 1fr;
+            }
+
+            .community-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .weekly-activity {
+                grid-template-columns: repeat(7, 1fr);
+            }
+
+            .day-bar {
+                height: 60px;
+            }
+        }
+
+        /* 动画 */
+        .animate-in {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .animate-in.visible {
+            animation: slideUp 0.6s forwards;
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+        .stagger-5 { animation-delay: 0.5s; }
+        .stagger-6 { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <!-- 粒子背景 -->
+    <div class="particles" id="particles"></div>
+
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="logo">
+            <div class="logo-icon">🌐</div>
+            <span>语言星际</span>
+        </div>
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#" class="active" onclick="showPage('home')">首页</a></li>
+            <li><a href="#" onclick="showPage('courses')">课程</a></li>
+            <li><a href="#" onclick="showPage('learning')">学习</a></li>
+            <li><a href="#" onclick="showPage('progress')">进度</a></li>
+            <li><a href="#" onclick="showPage('community')">社区</a></li>
+        </ul>
+        <div class="nav-actions">
+            <button class="btn btn-ghost" onclick="showPage('auth')">登录</button>
+            <button class="btn btn-primary" onclick="showPage('auth')">开始学习</button>
+        </div>
+    </nav>
+
+    <!-- 首页 -->
+    <div class="page active" id="page-home">
+        <div class="hero">
+            <div class="hero-badge">
+                ✨ 全新沉浸式学习体验
+            </div>
+            <h1>探索语言的星际<br>开启你的全球之旅</h1>
+            <p>融合先进教学理念与趣味互动，带你领略英语、日语、韩语的魅力。从零基础到精通，每个阶段都有专属的学习路径。</p>
+            <div class="hero-cta">
+                <button class="btn btn-primary" onclick="showPage('courses')">立即开始</button>
+                <button class="btn btn-ghost" onclick="showPage('learning')">了解更多</button>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <div class="stat-number">50K+</div>
+                    <div class="stat-label">活跃学习者</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">300+</div>
+                    <div class="stat-label">精品课程</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">95%</div>
+                    <div class="stat-label">学习满意度</div>
+                </div>
+            </div>
+        </div>
+
+        <section class="language-section">
+            <div class="section-header">
+                <h2>选择你的学习星球</h2>
+                <p>每种语言都是一个独特的世界，等待你去探索</p>
+            </div>
+            <div class="language-grid">
+                <div class="language-card animate-in" data-lang="en" onclick="selectLanguage('en')">
+                    <div class="lang-flag">🇬🇧</div>
+                    <div class="lang-name">英语</div>
+                    <div class="lang-native">English</div>
+                    <div class="lang-description">全球通用语言，连接世界的桥梁。从日常对话到商务沟通，全面提升你的英语能力。</div>
+                    <div class="lang-levels">
+                        <span class="level-badge">零基础</span>
+                        <span class="level-badge">初级</span>
+                        <span class="level-badge">中级</span>
+                        <span class="level-badge">高级</span>
+                    </div>
+                    <div class="lang-progress">
+                        <div class="progress-label">
+                            <span>学习进度</span>
+                            <span>68%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 68%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="language-card animate-in stagger-1" data-lang="ja" onclick="selectLanguage('ja')">
+                    <div class="lang-flag">🇯🇵</div>
+                    <div class="lang-name">日语</div>
+                    <div class="lang-native">日本語</div>
+                    <div class="lang-description">优雅细腻的语言，深入了解日本文化、动漫与科技。从五十音图到流畅会话。</div>
+                    <div class="lang-levels">
+                        <span class="level-badge">入门</span>
+                        <span class="level-badge">N5-N4</span>
+                        <span class="level-badge">N3-N2</span>
+                        <span class="level-badge">N1</span>
+                    </div>
+                    <div class="lang-progress">
+                        <div class="progress-label">
+                            <span>学习进度</span>
+                            <span>35%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 35%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="language-card animate-in stagger-2" data-lang="ko" onclick="selectLanguage('ko')">
+                    <div class="lang-flag">🇰🇷</div>
+                    <div class="lang-name">韩语</div>
+                    <div class="lang-native">한국어</div>
+                    <div class="lang-description">K-pop、韩剧、韩流的背后语言。轻松学会韩文字母，畅享韩国文化魅力。</div>
+                    <div class="lang-levels">
+                        <span class="level-badge">基础</span>
+                        <span class="level-badge">TOPIK 1-2</span>
+                        <span class="level-badge">TOPIK 3-4</span>
+                        <span class="level-badge">TOPIK 5-6</span>
+                    </div>
+                    <div class="lang-progress">
+                        <div class="progress-label">
+                            <span>学习进度</span>
+                            <span>12%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 12%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="language-section">
+            <div class="section-header">
+                <h2>个性化学习路径推荐</h2>
+                <p>基于你的学习目标和水平，智能生成专属学习计划</p>
+            </div>
+            <div class="recommendation-section">
+                <div class="recommendation-header">
+                    <div class="recommendation-icon">🎯</div>
+                    <div>
+                        <div class="recommendation-title">今日推荐</div>
+                        <div class="recommendation-subtitle">根据你的学习记录优化</div>
+                    </div>
+                </div>
+                <div class="recommendation-cards">
+                    <div class="recommendation-card" data-type="vocab" onclick="startVocabLearning()">
+                        <div class="recommendation-thumb">📚</div>
+                        <div class="recommendation-info">
+                            <div class="recommendation-type">单词记忆</div>
+                            <div class="recommendation-name">高频词汇强化</div>
+                            <div class="recommendation-desc">每天10分钟，掌握100个核心词汇</div>
+                        </div>
+                    </div>
+                    <div class="recommendation-card" data-type="speaking" onclick="showPage('learning')">
+                        <div class="recommendation-thumb">🎤</div>
+                        <div class="recommendation-info">
+                            <div class="recommendation-type">口语跟读</div>
+                            <div class="recommendation-name">场景对话练习</div>
+                            <div class="recommendation-desc">模拟真实场景，提升口语表达能力</div>
+                        </div>
+                    </div>
+                    <div class="recommendation-card" data-type="grammar" onclick="showPage('learning')">
+                        <div class="recommendation-thumb">📝</div>
+                        <div class="recommendation-info">
+                            <div class="recommendation-type">语法练习</div>
+                            <div class="recommendation-name">时态专项突破</div>
+                            <div class="recommendation-desc">攻克英语时态难点，构建语法框架</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 课程页面 -->
+    <div class="page" id="page-courses">
+        <div class="courses-page">
+            <div class="course-container">
+                <div class="course-header">
+                    <div class="course-lang-icon" id="courseLangIcon">🇬🇧</div>
+                    <div class="course-lang-info">
+                        <h2 id="courseLangName">英语课程体系</h2>
+                        <p id="courseLangDesc">系统化学习路径，从入门到精通</p>
+                    </div>
+                </div>
+
+                <div class="course-tabs">
+                    <button class="course-tab active" onclick="switchCourseTab('beginner')">入门阶段</button>
+                    <button class="course-tab" onclick="switchCourseTab('intermediate')">进阶阶段</button>
+                    <button class="course-tab" onclick="switchCourseTab('advanced')">精通阶段</button>
+                </div>
+
+                <div class="course-level" id="courseLevel">
+                    <div class="level-title">
+                        <div class="level-icon">🚀</div>
+                        入门阶段 - 打好语言基础
+                    </div>
+                    <div class="lessons-grid">
+                        <div class="lesson-card" onclick="startLesson('phonetics')">
+                            <div class="lesson-header">
+                                <div class="lesson-number">01</div>
+                                <div class="lesson-type">发音</div>
+                            </div>
+                            <div class="lesson-title">音标与发音规则</div>
+                            <div class="lesson-description">掌握48个国际音标，正确发音每一个单词</div>
+                            <div class="lesson-meta">
+                                <span>⏱️ 30分钟</span>
+                                <span>📖 12个知识点</span>
+                            </div>
+                        </div>
+                        <div class="lesson-card" onclick="startLesson('greetings')">
+                            <div class="lesson-header">
+                                <div class="lesson-number">02</div>
+                                <div class="lesson-type">词汇</div>
+                            </div>
+                            <div class="lesson-title">基础问候语</div>
+                            <div class="lesson-description">学习日常打招呼的方式，建立语言自信</div>
+                            <div class="lesson-meta">
+                                <span>⏱️ 25分钟</span>
+                                <span>📖 20个词汇</span>
+                            </div>
+                        </div>
+                        <div class="lesson-card" onclick="startLesson('numbers')">
+                            <div class="lesson-header">
+                                <div class="lesson-number">03</div>
+                                <div class="lesson-type">词汇</div>
+                            </div>
+                            <div class="lesson-title">数字与时间</div>
+                            <div class="lesson-description">1-100数字、日期、时间的表达方式</div>
+                            <div class="lesson-meta">
+                                <span>⏱️ 20分钟</span>
+                                <span>📖 50个词汇</span>
+                            </div>
+                        </div>
+                        <div class="lesson-card" onclick="startLesson('basic-grammar')">
+                            <div class="lesson-header">
+                                <div class="lesson-number">04</div>
+                                <div class="lesson-type">语法</div>
+                            </div>
+                            <div class="lesson-title">基础句型结构</div>
+                            <div class="lesson-description">主谓宾结构，be动词与助动词的用法</div>
+                            <div class="lesson-meta">
+                                <span>⏱️ 35分钟</span>
+                                <span>📖 8个句型</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 学习模块页面 -->
+    <div class="page" id="page-learning">
+        <div class="learning-page">
+            <div class="learning-container">
+                <div class="learning-header">
+                    <h2>互动学习中心</h2>
+                    <p>选择你喜欢的方式，开启沉浸式学习</p>
+                </div>
+
+                <div class="learning-modules">
+                    <div class="module-card" data-module="vocabulary" onclick="startVocabLearning()">
+                        <div class="module-icon">📚</div>
+                        <div class="module-title">单词记忆</div>
+                        <div class="module-description">运用间隔重复算法，科学高效记忆单词。支持图片记忆、词根词缀、联想记忆等多种方式。</div>
+                        <div class="module-stats">
+                            <div class="module-stat">
+                                <div class="module-stat-value">2,450</div>
+                                <div class="module-stat-label">已掌握</div>
+                            </div>
+                            <div class="module-stat">
+                                <div class="module-stat-value">89%</div>
+                                <div class="module-stat-label">正确率</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-card" data-module="grammar" onclick="startGrammarLearning()">
+                        <div class="module-icon">📝</div>
+                        <div class="module-title">语法练习</div>
+                        <div class="module-description">闯关式语法学习，从简单句到复合句。智能错题本，帮你查漏补缺。</div>
+                        <div class="module-stats">
+                            <div class="module-stat">
+                                <div class="module-stat-value">156</div>
+                                <div class="module-stat-label">已学语法点</div>
+                            </div>
+                            <div class="module-stat">
+                                <div class="module-stat-value">92%</div>
+                                <div class="module-stat-label">掌握度</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-card" data-module="speaking" onclick="startSpeakingLearning()">
+                        <div class="module-icon">🎤</div>
+                        <div class="module-title">口语跟读</div>
+                        <div class="module-description">AI智能评测你的发音，模仿母语者的语调。涵盖日常对话、商务用语等场景。</div>
+                        <div class="module-stats">
+                            <div class="module-stat">
+                                <div class="module-stat-value">45</div>
+                                <div class="module-stat-label">完成课时</div>
+                            </div>
+                            <div class="module-stat">
+                                <div class="module-stat-value">78</div>
+                                <div class="module-stat-label">发音评分</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-card" data-module="listening" onclick="startListeningLearning()">
+                        <div class="module-icon">🎧</div>
+                        <div class="module-title">听力训练</div>
+                        <div class="module-description">分级听力材料，从慢速到常速。支持听写练习、跟读复述等多种训练模式。</div>
+                        <div class="module-stats">
+                            <div class="module-stat">
+                                <div class="module-stat-value">128</div>
+                                <div class="module-stat-label">练习时长</div>
+                            </div>
+                            <div class="module-stat">
+                                <div class="module-stat-value">85%</div>
+                                <div class="module-stat-label">理解率</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 单词学习面板 -->
+                <div class="vocab-learning" id="vocabPanel" style="display: none;">
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">📖 今日单词挑战</h3>
+                        <p style="color: var(--text-secondary);">点击卡片查看释义，判断是否认识</p>
+                    </div>
+
+                    <div class="flashcard" id="flashcard" onclick="flipCard()">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-face flashcard-front">
+                                <div class="flashcard-word" id="cardWord">accommodate</div>
+                                <div class="flashcard-pronunciation" id="cardPron">/əˈkɒmədeɪt/</div>
+                            </div>
+                            <div class="flashcard-face flashcard-back">
+                                <div class="flashcard-translation" id="cardTrans">v. 容纳；提供住宿</div>
+                                <div class="flashcard-example" id="cardExample">"The hotel can accommodate 500 guests."</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-bottom: 1.5rem;">
+                        <span id="cardProgress" style="color: var(--text-secondary);">1 / 10</span>
+                    </div>
+
+                    <div class="vocab-controls">
+                        <button class="vocab-btn dont-know" onclick="markWord(false)">不认识</button>
+                        <button class="vocab-btn know" onclick="markWord(true)">认识</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 进度页面 -->
+    <div class="page" id="page-progress">
+        <div class="progress-page">
+            <div class="progress-container">
+                <div class="section-header" style="margin-bottom: 2rem;">
+                    <h2>学习数据中心</h2>
+                    <p>全面了解你的学习轨迹</p>
+                </div>
+
+                <div class="progress-overview">
+                    <div class="progress-card">
+                        <div class="progress-card-icon">🔥</div>
+                        <div class="progress-card-value">47</div>
+                        <div class="progress-card-label">连续学习天数</div>
+                    </div>
+                    <div class="progress-card">
+                        <div class="progress-card-icon">⏱️</div>
+                        <div class="progress-card-value">128h</div>
+                        <div class="progress-card-label">累计学习时长</div>
+                    </div>
+                    <div class="progress-card">
+                        <div class="progress-card-icon">📊</div>
+                        <div class="progress-card-value">3,240</div>
+                        <div class="progress-card-label">已掌握词汇</div>
+                    </div>
+                    <div class="progress-card">
+                        <div class="progress-card-icon">🏆</div>
+                        <div class="progress-card-value">28</div>
+                        <div class="progress-card-label">获得成就</div>
+                    </div>
+                </div>
+
+                <div class="progress-section">
+                    <h3>📈 各语言学习进度</h3>
+                    <div class="language-progress-list">
+                        <div class="language-progress-item">
+                            <div class="language-progress-header">
+                                <div class="language-progress-info">
+                                    <div class="language-progress-flag">🇬🇧</div>
+                                    <div>
+                                        <div class="language-progress-name">英语</div>
+                                        <div class="language-progress-level">中级 · Level 5</div>
+                                    </div>
+                                </div>
+                                <div class="language-progress-percent">68%</div>
+                            </div>
+                            <div class="language-progress-bar">
+                                <div class="language-progress-fill en" style="width: 68%;"></div>
+                            </div>
+                        </div>
+                        <div class="language-progress-item">
+                            <div class="language-progress-header">
+                                <div class="language-progress-info">
+                                    <div class="language-progress-flag">🇯🇵</div>
+                                    <div>
+                                        <div class="language-progress-name">日语</div>
+                                        <div class="language-progress-level">初级 · N5</div>
+                                    </div>
+                                </div>
+                                <div class="language-progress-percent">35%</div>
+                            </div>
+                            <div class="language-progress-bar">
+                                <div class="language-progress-fill ja" style="width: 35%;"></div>
+                            </div>
+                        </div>
+                        <div class="language-progress-item">
+                            <div class="language-progress-header">
+                                <div class="language-progress-info">
+                                    <div class="language-progress-flag">🇰🇷</div>
+                                    <div>
+                                        <div class="language-progress-name">韩语</div>
+                                        <div class="language-progress-level">入门 · 初级</div>
+                                    </div>
+                                </div>
+                                <div class="language-progress-percent">12%</div>
+                            </div>
+                            <div class="language-progress-bar">
+                                <div class="language-progress-fill ko" style="width: 12%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-section">
+                    <h3>📅 本周学习活动</h3>
+                    <div class="weekly-activity">
+                        <div class="day-activity">
+                            <div class="day-bar">
+                                <div class="day-fill" style="height: 80%; background: linear-gradient(180deg, var(--primary), var(--secondary));"></div>
+                            </div>
+                            <div class="day-label">周一</div>
+                        </div>
+                        <div class="day-activity">
+                            <div class="day-bar">
+                                <div class="day-fill" style="height: 95%; background: linear-gradient(180deg, var(--primary), var(--secondary));"></div>
+                            </div>
+                            <div class="day-label">周二</div>
+                        </div>
+                        <div class="day-activity">
+                            <div class="day-bar">
+                                <div class="day-fill" style="height: 60%; background: linear-gradient(180deg, var(--primary), var(--secondary));"></div>
+                            </div>
+                            <div class="day-label">周三</div>
+                        </div>
+                        <div class="day-activity">
+                            <div class="day-bar">
+                                <div class="day-fill" style="height: 100%; background: linear-gradient(180deg, var(--primary), var(--secondary));"></div>
+                            </div>
+                            <div class="day-label">周四</div>
+                        </div>
+                        <div class="day-activity">
+                            <div class="day-bar">
+                                <div class="day-fill" style="height: 75%; background: linear-gradient(180deg, var(--primary), var(--secondary));"></div>
+                            </div>
+                            <div class="day-label">周五</div>
+                        </div>
+                        <div class="day-activity">
+                            <div class="day-bar">
+                                <div class="day-fill" style="height: 50%; background: linear-gradient(180deg, var(--primary), var(--secondary));"></div>
+                            </div>
+                            <div class="day-label">周六</div>
+                        </div>
+                        <div class="day-activity">
+                            <div class="day-bar">
+                                <div class="day-fill" style="height: 40%; background: linear-gradient(180deg, var(--primary), var(--secondary));"></div>
+                            </div>
+                            <div class="day-label">周日</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 社区页面 -->
+    <div class="page" id="page-community">
+        <div class="community-page">
+            <div class="community-container">
+                <div class="community-header">
+                    <div>
+                        <h2>学习社区</h2>
+                        <p style="color: var(--text-secondary);">与全球学习者一起成长</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="showPostModal()">发布动态</button>
+                </div>
+
+                <div class="community-grid">
+                    <div class="feed">
+                        <div class="post-card">
+                            <div class="post-header">
+                                <div class="post-avatar">🇯🇵</div>
+                                <div>
+                                    <div class="post-user">日语学习小分队</div>
+                                    <div class="post-meta">3小时前 · 东京</div>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                🎉 刚刚通过了N2能力考！感谢平台的学习路径，从零基础到N2整整用了一年半。每天坚持学习2小时，终于收获了满意的成果。接下来要向N1进发了！有一起备考N1的小伙伴吗？🙌
+                            </div>
+                            <div class="post-actions">
+                                <div class="post-action">❤️ 328 赞</div>
+                                <div class="post-action">💬 45 评论</div>
+                                <div class="post-action">🔗 分享</div>
+                            </div>
+                        </div>
+
+                        <div class="post-card">
+                            <div class="post-header">
+                                <div class="post-avatar">🇰🇷</div>
+                                <div>
+                                    <div class="post-user">K-POP追星族</div>
+                                    <div class="post-meta">5小时前 · 首尔</div>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                用韩语写歌词真的太酷了！🎤 花了三个月学习韩语，现在终于能看懂一些歌词的意思了。BTS的新歌《Dynamite》里面的双关语真的很有趣，学好语言真的能更深入地理解文化！
+                            </div>
+                            <div class="post-actions">
+                                <div class="post-action">❤️ 256 赞</div>
+                                <div class="post-action">💬 32 评论</div>
+                                <div class="post-action">🔗 分享</div>
+                            </div>
+                        </div>
+
+                        <div class="post-card">
+                            <div class="post-header">
+                                <div class="post-avatar">🇬🇧</div>
+                                <div>
+                                    <div class="post-user">雅思8分之路</div>
+                                    <div class="post-meta">昨天 · 伦敦</div>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                📚 分享一下我的雅思听力备考经验：
+
+                                1. 每天听BBC/VOA至少30分钟
+                                2. 用影子跟读法训练反应速度
+                                3. 积累同义替换词汇
+                                4. 做真题时学会预判答案
+
+                                坚持两个月，听力从6分提升到8.5分！加油各位烤鸭们！💪
+                            </div>
+                            <div class="post-actions">
+                                <div class="post-action">❤️ 512 赞</div>
+                                <div class="post-action">💬 78 评论</div>
+                                <div class="post-action">🔗 分享</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sidebar">
+                        <div class="sidebar-card">
+                            <h4>🏆 成就展示</h4>
+                            <div class="achievements-grid">
+                                <div class="achievement">
+                                    <div class="achievement-icon">🔥</div>
+                                    <div class="achievement-name">连续7天</div>
+                                </div>
+                                <div class="achievement">
+                                    <div class="achievement-icon">📚</div>
+                                    <div class="achievement-name">单词大师</div>
+                                </div>
+                                <div class="achievement">
+                                    <div class="achievement-icon">🎤</div>
+                                    <div class="achievement-name">口语达人</div>
+                                </div>
+                                <div class="achievement">
+                                    <div class="achievement-icon">🏅</div>
+                                    <div class="achievement-name">月度之星</div>
+                                </div>
+                                <div class="achievement">
+                                    <div class="achievement-icon">⭐</div>
+                                    <div class="achievement-name">VIP会员</div>
+                                </div>
+                                <div class="achievement locked">
+                                    <div class="achievement-icon">👑</div>
+                                    <div class="achievement-name">语言大师</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sidebar-card">
+                            <h4>📊 学习排行榜</h4>
+                            <div class="leaderboard-item">
+                                <div class="leaderboard-rank gold">1</div>
+                                <div class="leaderboard-name">Sarah Chen</div>
+                                <div class="leaderboard-score">12,580</div>
+                            </div>
+                            <div class="leaderboard-item">
+                                <div class="leaderboard-rank silver">2</div>
+                                <div class="leaderboard-name">张明远</div>
+                                <div class="leaderboard-score">11,240</div>
+                            </div>
+                            <div class="leaderboard-item">
+                                <div class="leaderboard-rank bronze">3</div>
+                                <div class="leaderboard-name">김지수</div>
+                                <div class="leaderboard-score">10,890</div>
+                            </div>
+                            <div class="leaderboard-item">
+                                <div class="leaderboard-rank">4</div>
+                                <div class="leaderboard-name">John Smith</div>
+                                <div class="leaderboard-score">9,650</div>
+                            </div>
+                            <div class="leaderboard-item">
+                                <div class="leaderboard-rank">5</div>
+                                <div class="leaderboard-name">田中太郎</div>
+                                <div class="leaderboard-score">9,120</div>
+                            </div>
+                        </div>
+
+                        <div class="sidebar-card">
+                            <h4>📅 即将到来的活动</h4>
+                            <div style="padding: 0.75rem; background: var(--glass); border-radius: 12px; margin-bottom: 0.75rem;">
+                                <div style="font-weight: 600; margin-bottom: 0.25rem;">🎤 英语口语角</div>
+                                <div style="font-size: 0.8rem; color: var(--text-secondary);">今晚 20:00 · 在线</div>
+                            </div>
+                            <div style="padding: 0.75rem; background: var(--glass); border-radius: 12px;">
+                                <div style="font-weight: 600; margin-bottom: 0.25rem;">📝 日语N2模拟考</div>
+                                <div style="font-size: 0.8rem; color: var(--text-secondary);">本周六 09:00 · 在线</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 登录页面 -->
+    <div class="page" id="page-auth">
+        <div class="auth-page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <h2>欢迎回来</h2>
+                        <p>登录继续你的语言学习之旅</p>
+                    </div>
+                    <form class="auth-form" onsubmit="handleAuth(event)">
+                        <div class="form-group">
+                            <label>邮箱地址</label>
+                            <input type="email" class="form-input" placeholder="your@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>密码</label>
+                            <input type="password" class="form-input" placeholder="输入密码" required>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" style="width: 16px; height: 16px;">
+                                <span style="font-size: 0.9rem; color: var(--text-secondary);">记住我</span>
+                            </label>
+                            <a style="color: var(--primary-light); font-size: 0.9rem; cursor: pointer;">忘记密码？</a>
+                        </div>
+                        <button type="submit" class="btn btn-primary auth-btn">登录</button>
+                    </form>
+                    <div class="auth-footer">
+                        还没有账号？ <a onclick="switchAuthMode('register')">立即注册</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 粒子效果
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const colors = ['#6366f1', '#ec4899', '#3b82f6', '#f472b6', '#a855f7'];
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.width = (2 + Math.random() * 4) + 'px';
+                particle.style.height = particle.style.width;
+                container.appendChild(particle);
+            }
+        }
+
+        // 页面切换
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+            
+            const page = document.getElementById('page-' + pageId);
+            if (page) {
+                page.classList.add('active');
+            }
+            
+            const navLink = document.querySelector(`.nav-links a[onclick="showPage('${pageId}')"]`);
+            if (navLink) {
+                navLink.classList.add('active');
+            }
+
+            // 关闭移动端菜单
+            document.getElementById('navLinks').classList.remove('show');
+            
+            // 触发动画
+            setTimeout(() => {
+                document.querySelectorAll('.animate-in').forEach(el => {
+                    el.classList.add('visible');
+                });
+            }, 100);
+        }
+
+        // 移动端菜单
+        function toggleMobileMenu() {
+            document.getElementById('navLinks').classList.toggle('show');
+        }
+
+        // 选择语言
+        function selectLanguage(lang) {
+            const langData = {
+                en: { icon: '🇬🇧', name: '英语课程体系', desc: '系统化学习路径，从入门到精通' },
+                ja: { icon: '🇯🇵', name: '日语课程体系', desc: '从五十音图到JLPT N1级别' },
+                ko: { icon: '🇰🇷', name: '韩语课程体系', desc: '轻松学会韩文，畅享韩流文化' }
+            };
+
+            document.getElementById('courseLangIcon').textContent = langData[lang].icon;
+            document.getElementById('courseLangName').textContent = langData[lang].name;
+            document.getElementById('courseLangDesc').textContent = langData[lang].desc;
+            
+            showPage('courses');
+        }
+
+        // 课程标签切换
+        function switchCourseTab(tab) {
+            document.querySelectorAll('.course-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const levelData = {
+                beginner: { icon: '🚀', title: '入门阶段 - 打好语言基础' },
+                intermediate: { icon: '⚡', title: '进阶阶段 - 提升表达能力' },
+                advanced: { icon: '💎', title: '精通阶段 - 达到母语水平' }
+            };
+
+            document.querySelector('.level-title').innerHTML = `
+                <div class="level-icon">${levelData[tab].icon}</div>
+                ${levelData[tab].title}
+            `;
+        }
+
+        // 单词学习
+        const vocabWords = [
+            { word: 'accommodate', pron: '/əˈkɒmədeɪt/', trans: 'v. 容纳；提供住宿', example: '"The hotel can accommodate 500 guests."' },
+            { word: 'paradigm', pron: '/ˈpærədaɪm/', trans: 'n. 范式；模型', example: '"This is a new paradigm for scientific research."' },
+            { word: 'eloquent', pron: '/ˈeləkwənt/', trans: 'adj. 雄辩的；口才好的', example: '"She gave an eloquent speech."' },
+            { word: 'pragmatic', pron: '/præɡˈmætɪk/', trans: 'adj. 务实的；实用的', example: '"We need a pragmatic approach to the problem."' },
+            { word: 'ubiquitous', pron: '/juːˈbɪkwɪtəs/', trans: 'adj. 无处不在的', example: '"Smartphones have become ubiquitous in modern society."' },
+            { word: 'meticulous', pron: '/məˈtɪkjələs/', trans: 'adj. 一丝不苟的', example: '"He is meticulous about his work."' },
+            { word: 'resilient', pron: '/rɪˈzɪliənt/', trans: 'adj. 有韧性的；恢复力强的', example: '"Children are often very resilient."' },
+            { word: 'ambiguous', pron: '/æmˈbɪɡjuəs/', trans: 'adj. 模棱两可的', example: '"The statement was ambiguous."' },
+            { word: 'chronological', pron: '/ˌkrɒnəˈlɒdʒɪkl/', trans: 'adj. 按时间顺序的', example: '"Put the events in chronological order."' },
+            { word: 'metropolitan', pron: '/ˌmetrəˈpɒlɪtən/', trans: 'adj. 大都市的', example: '"New York is a metropolitan city."' }
+        ];
+
+        let currentWordIndex = 0;
+        let knownWords = 0;
+
+        function startVocabLearning() {
+            document.getElementById('vocabPanel').style.display = 'block';
+            currentWordIndex = 0;
+            knownWords = 0;
+            updateFlashcard();
+        }
+
+        function flipCard() {
+            document.getElementById('flashcard').classList.toggle('flipped');
+        }
+
+        function updateFlashcard() {
+            const card = vocabWords[currentWordIndex];
+            document.getElementById('cardWord').textContent = card.word;
+            document.getElementById('cardPron').textContent = card.pron;
+            document.getElementById('cardTrans').textContent = card.trans;
+            document.getElementById('cardExample').textContent = card.example;
+            document.getElementById('cardProgress').textContent = `${currentWordIndex + 1} / ${vocabWords.length}`;
+            document.getElementById('flashcard').classList.remove('flipped');
+        }
+
+        function markWord(known) {
+            if (known) knownWords++;
+            
+            if (currentWordIndex < vocabWords.length - 1) {
+                currentWordIndex++;
+                updateFlashcard();
+            } else {
+                alert(`🎉 学习完成！\n\n本次学习 ${vocabWords.length} 个单词\n认识 ${knownWords} 个\n还需努力 ${vocabWords.length - knownWords} 个\n\n正确率：${Math.round(knownWords / vocabWords.length * 100)}%`);
+                document.getElementById('vocabPanel').style.display = 'none';
+            }
+        }
+
+        // 其他学习模块（预留）
+        function startGrammarLearning() {
+            alert('🔧 语法练习模块开发中...\n支持闯关式语法学习，智能错题本');
+        }
+
+        function startSpeakingLearning() {
+            alert('🎤 口语跟读模块开发中...\n支持AI智能评测，场景对话练习');
+        }
+
+        function startListeningLearning() {
+            alert('🎧 听力训练模块开发中...\n支持分级听力，听写练习');
+        }
+
+        // 课程开始
+        function startLesson(lessonId) {
+            showPage('learning');
+            if (lessonId === 'phonetics' || lessonId === 'greetings') {
+                startVocabLearning();
+            }
+        }
+
+        // 认证处理
+        function handleAuth(e) {
+            e.preventDefault();
+            alert('🎉 登录成功！\n\n欢迎回到语言星际\n开始你的学习之旅吧！');
+            showPage('home');
+        }
+
+        function switchAuthMode(mode) {
+            const card = document.querySelector('.auth-card');
+            if (mode === 'register') {
+                card.innerHTML = `
+                    <div class="auth-header">
+                        <h2>创建账号</h2>
+                        <p>加入我们，开始你的语言学习之旅</p>
+                    </div>
+                    <form class="auth-form" onsubmit="handleAuth(event)">
+                        <div class="form-group">
+                            <label>用户名</label>
+                            <input type="text" class="form-input" placeholder="设置用户名" required>
+                        </div>
+                        <div class="form-group">
+                            <label>邮箱地址</label>
+                            <input type="email" class="form-input" placeholder="your@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>密码</label>
+                            <input type="password" class="form-input" placeholder="设置密码" required>
+                        </div>
+                        <div class="form-group">
+                            <label>学习目标</label>
+                            <select class="form-input">
+                                <option>英语 - 日常交流</option>
+                                <option>英语 - 商务英语</option>
+                                <option>英语 - 雅思/托福</option>
+                                <option>日语 - JLPT考试</option>
+                                <option>韩语 - TOPIK考试</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary auth-btn">注册</button>
+                    </form>
+                    <div class="auth-footer">
+                        已有账号？ <a onclick="switchAuthMode('login')">立即登录</a>
+                    </div>
+                `;
+            } else {
+                location.reload();
+            }
+        }
+
+        // 发布动态
+        function showPostModal() {
+            alert('📝 发布动态功能开发中...\n支持图片、视频、语音多种形式');
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            
+            // 触发动画
+            setTimeout(() => {
+                document.querySelectorAll('.animate-in').forEach(el => {
+                    el.classList.add('visible');
+                });
+            }, 300);
+        });
+    </script>
+</body>
+</html>
